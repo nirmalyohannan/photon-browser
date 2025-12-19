@@ -73,16 +73,28 @@ class TabSwitcherPage extends StatelessWidget {
                         ),
                         child: Row(
                           children: [
-                            // Favicon placeholder
-                            Container(
-                              width: 16,
-                              height: 16,
-                              decoration: BoxDecoration(
-                                color: Colors.grey,
-                                borderRadius: BorderRadius.circular(4),
+                            // Favicon
+                            if (tab.favicon != null && tab.favicon!.isNotEmpty)
+                              Image.memory(
+                                tab.favicon!,
+                                width: 16,
+                                height: 16,
+                                errorBuilder: (context, error, stackTrace) =>
+                                    Container(
+                                      width: 16,
+                                      height: 16,
+                                      color: Colors.grey,
+                                    ),
+                              )
+                            else
+                              Container(
+                                width: 16,
+                                height: 16,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey,
+                                  borderRadius: BorderRadius.circular(4),
+                                ),
                               ),
-                              // TODO: Load actual favicon
-                            ),
                             const SizedBox(width: 8),
                             Expanded(
                               child: Text(

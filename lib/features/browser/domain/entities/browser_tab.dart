@@ -8,7 +8,7 @@ class BrowserTab extends Equatable {
   final bool isIncognito;
   final double scrollPosition;
   final bool isLoading;
-  final String? faviconUrl;
+  final Uint8List? favicon;
   // Screenshot is often heavy, keep it out of the domain model if possible,
   // or nullable and not persisted tightly. But for tab switcher we need it.
   // We can store a path or bytes. Bytes is easier for in-memory.
@@ -21,7 +21,7 @@ class BrowserTab extends Equatable {
     this.isIncognito = false,
     this.scrollPosition = 0.0,
     this.isLoading = false,
-    this.faviconUrl,
+    this.favicon,
     this.screenshot,
   });
 
@@ -32,7 +32,7 @@ class BrowserTab extends Equatable {
     bool? isIncognito,
     double? scrollPosition,
     bool? isLoading,
-    String? faviconUrl,
+    Uint8List? favicon,
     Uint8List? screenshot,
   }) {
     return BrowserTab(
@@ -42,7 +42,7 @@ class BrowserTab extends Equatable {
       isIncognito: isIncognito ?? this.isIncognito,
       scrollPosition: scrollPosition ?? this.scrollPosition,
       isLoading: isLoading ?? this.isLoading,
-      faviconUrl: faviconUrl ?? this.faviconUrl,
+      favicon: favicon ?? this.favicon,
       screenshot: screenshot ?? this.screenshot,
     );
   }
@@ -55,7 +55,7 @@ class BrowserTab extends Equatable {
     isIncognito,
     scrollPosition,
     isLoading,
-    faviconUrl,
+    favicon,
     screenshot,
   ];
 }

@@ -1,3 +1,4 @@
+import 'dart:typed_data';
 import 'package:equatable/equatable.dart';
 
 abstract class BrowserEvent extends Equatable {
@@ -69,12 +70,12 @@ class BrowserTitleChanged extends BrowserEvent {
 
 class BrowserFaviconChanged extends BrowserEvent {
   final String tabId;
-  final String faviconUrl;
+  final Uint8List? favicon;
 
-  const BrowserFaviconChanged({required this.tabId, required this.faviconUrl});
+  const BrowserFaviconChanged({required this.tabId, required this.favicon});
 
   @override
-  List<Object?> get props => [tabId, faviconUrl];
+  List<Object?> get props => [tabId, favicon];
 }
 
 class BrowserGoBack extends BrowserEvent {

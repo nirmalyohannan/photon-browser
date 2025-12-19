@@ -18,10 +18,10 @@ const BrowserTabCollectionSchema = CollectionSchema(
   name: r'BrowserTabCollection',
   id: -5914540057977881879,
   properties: {
-    r'faviconUrl': PropertySchema(
+    r'favicon': PropertySchema(
       id: 0,
-      name: r'faviconUrl',
-      type: IsarType.string,
+      name: r'favicon',
+      type: IsarType.longList,
     ),
     r'isIncognito': PropertySchema(
       id: 1,
@@ -79,9 +79,9 @@ int _browserTabCollectionEstimateSize(
 ) {
   var bytesCount = offsets.last;
   {
-    final value = object.faviconUrl;
+    final value = object.favicon;
     if (value != null) {
-      bytesCount += 3 + value.length * 3;
+      bytesCount += 3 + value.length * 8;
     }
   }
   {
@@ -102,7 +102,7 @@ void _browserTabCollectionSerialize(
   List<int> offsets,
   Map<Type, List<int>> allOffsets,
 ) {
-  writer.writeString(offsets[0], object.faviconUrl);
+  writer.writeLongList(offsets[0], object.favicon);
   writer.writeBool(offsets[1], object.isIncognito);
   writer.writeLongList(offsets[2], object.screenshot);
   writer.writeDouble(offsets[3], object.scrollPosition);
@@ -118,7 +118,7 @@ BrowserTabCollection _browserTabCollectionDeserialize(
   Map<Type, List<int>> allOffsets,
 ) {
   final object = BrowserTabCollection();
-  object.faviconUrl = reader.readStringOrNull(offsets[0]);
+  object.favicon = reader.readLongList(offsets[0]);
   object.id = id;
   object.isIncognito = reader.readBool(offsets[1]);
   object.screenshot = reader.readLongList(offsets[2]);
@@ -137,7 +137,7 @@ P _browserTabCollectionDeserializeProp<P>(
 ) {
   switch (propertyId) {
     case 0:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readLongList(offset)) as P;
     case 1:
       return (reader.readBool(offset)) as P;
     case 2:
@@ -374,10 +374,10 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlIsNull() {
+  faviconIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'faviconUrl'),
+        const FilterCondition.isNull(property: r'favicon'),
       );
     });
   }
@@ -387,10 +387,10 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlIsNotNull() {
+  faviconIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'faviconUrl'),
+        const FilterCondition.isNotNull(property: r'favicon'),
       );
     });
   }
@@ -400,14 +400,10 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlEqualTo(String? value, {bool caseSensitive = true}) {
+  faviconElementEqualTo(int value) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(
-          property: r'faviconUrl',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
+        FilterCondition.equalTo(property: r'favicon', value: value),
       );
     });
   }
@@ -417,18 +413,13 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlGreaterThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
+  faviconElementGreaterThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
-          property: r'faviconUrl',
+          property: r'favicon',
           value: value,
-          caseSensitive: caseSensitive,
         ),
       );
     });
@@ -439,18 +430,13 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlLessThan(
-    String? value, {
-    bool include = false,
-    bool caseSensitive = true,
-  }) {
+  faviconElementLessThan(int value, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
-          property: r'faviconUrl',
+          property: r'favicon',
           value: value,
-          caseSensitive: caseSensitive,
         ),
       );
     });
@@ -461,22 +447,20 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlBetween(
-    String? lower,
-    String? upper, {
+  faviconElementBetween(
+    int lower,
+    int upper, {
     bool includeLower = true,
     bool includeUpper = true,
-    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.between(
-          property: r'faviconUrl',
+          property: r'favicon',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
-          caseSensitive: caseSensitive,
         ),
       );
     });
@@ -487,15 +471,9 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlStartsWith(String value, {bool caseSensitive = true}) {
+  faviconLengthEqualTo(int length) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.startsWith(
-          property: r'faviconUrl',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.listLength(r'favicon', length, true, length, true);
     });
   }
 
@@ -504,15 +482,9 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlEndsWith(String value, {bool caseSensitive = true}) {
+  faviconIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.endsWith(
-          property: r'faviconUrl',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.listLength(r'favicon', 0, true, 0, true);
     });
   }
 
@@ -521,15 +493,9 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlContains(String value, {bool caseSensitive = true}) {
+  faviconIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.contains(
-          property: r'faviconUrl',
-          value: value,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.listLength(r'favicon', 0, false, 999999, true);
     });
   }
 
@@ -538,15 +504,9 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlMatches(String pattern, {bool caseSensitive = true}) {
+  faviconLengthLessThan(int length, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.matches(
-          property: r'faviconUrl',
-          wildcard: pattern,
-          caseSensitive: caseSensitive,
-        ),
-      );
+      return query.listLength(r'favicon', 0, true, length, include);
     });
   }
 
@@ -555,11 +515,9 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlIsEmpty() {
+  faviconLengthGreaterThan(int length, {bool include = false}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'faviconUrl', value: ''),
-      );
+      return query.listLength(r'favicon', length, include, 999999, true);
     });
   }
 
@@ -568,10 +526,19 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  faviconUrlIsNotEmpty() {
+  faviconLengthBetween(
+    int lower,
+    int upper, {
+    bool includeLower = true,
+    bool includeUpper = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
-      return query.addFilterCondition(
-        FilterCondition.greaterThan(property: r'faviconUrl', value: ''),
+      return query.listLength(
+        r'favicon',
+        lower,
+        includeLower,
+        upper,
+        includeUpper,
       );
     });
   }
@@ -1484,20 +1451,6 @@ extension BrowserTabCollectionQueryLinks
 extension BrowserTabCollectionQuerySortBy
     on QueryBuilder<BrowserTabCollection, BrowserTabCollection, QSortBy> {
   QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
-  sortByFaviconUrl() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'faviconUrl', Sort.asc);
-    });
-  }
-
-  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
-  sortByFaviconUrlDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'faviconUrl', Sort.desc);
-    });
-  }
-
-  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
   sortByIsIncognito() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'isIncognito', Sort.asc);
@@ -1570,20 +1523,6 @@ extension BrowserTabCollectionQuerySortBy
 
 extension BrowserTabCollectionQuerySortThenBy
     on QueryBuilder<BrowserTabCollection, BrowserTabCollection, QSortThenBy> {
-  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
-  thenByFaviconUrl() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'faviconUrl', Sort.asc);
-    });
-  }
-
-  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
-  thenByFaviconUrlDesc() {
-    return QueryBuilder.apply(this, (query) {
-      return query.addSortBy(r'faviconUrl', Sort.desc);
-    });
-  }
-
   QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
   thenById() {
     return QueryBuilder.apply(this, (query) {
@@ -1672,9 +1611,9 @@ extension BrowserTabCollectionQuerySortThenBy
 extension BrowserTabCollectionQueryWhereDistinct
     on QueryBuilder<BrowserTabCollection, BrowserTabCollection, QDistinct> {
   QueryBuilder<BrowserTabCollection, BrowserTabCollection, QDistinct>
-  distinctByFaviconUrl({bool caseSensitive = true}) {
+  distinctByFavicon() {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'faviconUrl', caseSensitive: caseSensitive);
+      return query.addDistinctBy(r'favicon');
     });
   }
 
@@ -1734,10 +1673,10 @@ extension BrowserTabCollectionQueryProperty
     });
   }
 
-  QueryBuilder<BrowserTabCollection, String?, QQueryOperations>
-  faviconUrlProperty() {
+  QueryBuilder<BrowserTabCollection, List<int>?, QQueryOperations>
+  faviconProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'faviconUrl');
+      return query.addPropertyName(r'favicon');
     });
   }
 

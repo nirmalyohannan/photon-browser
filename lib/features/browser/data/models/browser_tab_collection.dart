@@ -21,7 +21,7 @@ class BrowserTabCollection {
   // Isar supports List<int>.
   List<int>? screenshot;
 
-  String? faviconUrl;
+  List<int>? favicon;
 
   /// Map from Domain to Isar Collection
   static BrowserTabCollection fromDomain(BrowserTab tab) {
@@ -32,7 +32,7 @@ class BrowserTabCollection {
       ..isIncognito = tab.isIncognito
       ..scrollPosition = tab.scrollPosition
       ..screenshot = tab.screenshot?.toList()
-      ..faviconUrl = tab.faviconUrl;
+      ..favicon = tab.favicon?.toList();
   }
 
   /// Map from Isar Collection to Domain
@@ -46,7 +46,7 @@ class BrowserTabCollection {
       // isLoading isn't persisted
       isLoading: false,
       screenshot: screenshot != null ? Uint8List.fromList(screenshot!) : null,
-      faviconUrl: faviconUrl,
+      favicon: favicon != null ? Uint8List.fromList(favicon!) : null,
     );
   }
 }

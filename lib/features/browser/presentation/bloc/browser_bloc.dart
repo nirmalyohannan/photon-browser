@@ -115,7 +115,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
   ) async {
     final newTabs = state.tabs.map((t) {
       if (t.id == event.tabId) {
-        return t.copyWith(faviconUrl: event.faviconUrl);
+        return t.copyWith(favicon: event.favicon);
       }
       return t;
     }).toList();

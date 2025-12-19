@@ -123,7 +123,16 @@ class _WebViewContainerState extends State<WebViewContainer>
                     );
                   }
                 }
-                // TODO: Update favicon
+                // Update favicon
+                if (url != null) {
+                  // We might get favicon here if we want to fetch it manually,
+                  // but onReceivedIcon is better.
+                }
+              },
+              onReceivedIcon: (controller, icon) {
+                context.read<BrowserBloc>().add(
+                  BrowserFaviconChanged(tabId: widget.tab.id, favicon: icon),
+                );
               },
               onTitleChanged: (controller, title) {
                 if (title != null) {
