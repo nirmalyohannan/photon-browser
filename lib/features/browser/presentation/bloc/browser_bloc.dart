@@ -31,6 +31,50 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
     on<BrowserFaviconChanged>(_onFaviconChanged);
 
     add(BrowserInitialized());
+
+    on<BrowserGoBack>((event, emit) {
+      final tabId = event.tabId ?? state.activeTab?.id;
+      if (tabId != null) {
+        emit(
+          state.copyWith(
+            navigationAction: BrowserNavigationAction.goBack,
+            navigationTargetTabId: tabId,
+          ),
+        );
+        // We should reset it immediately after?
+        // Or rely on listener to consume it?
+        // If we reset immediately, listener might miss it.
+        // Better to let listener react, but that's tricky with Bloc.
+        // Alternative: emit state with proper action, then emit state with none.
+        // But emit is async-ish.
+        // Let's rely on cleaning it up with a specific event `BrowserNavigationConsumed` or just letting it be replaced by next action.
+        // But if we click "Back" twice, state might not change enough if we don't reset.
+        // So reset is needed.
+        add(const BrowserNavigationConsumed());
+      }
+    });
+
+    on<BrowserGoForward>((event, emit) {
+      final tabId = event.tabId ?? state.activeTab?.id;
+      if (tabId != null) {
+        emit(
+          state.copyWith(
+            navigationAction: BrowserNavigationAction.goForward,
+            navigationTargetTabId: tabId,
+          ),
+        );
+        add(const BrowserNavigationConsumed());
+      }
+    });
+
+    on<BrowserNavigationConsumed>((event, emit) {
+      emit(
+        state.copyWith(
+          navigationAction: BrowserNavigationAction.none,
+          navigationTargetTabId: null,
+        ),
+      );
+    });
   }
 
   Future<void> _onUrlChanged(
@@ -86,7 +130,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
     final targetTabId = event.tabId ?? state.activeTab?.id;
     if (targetTabId == null) return;
 
-    final processedUrl = _loadUrlUseCase(event.url);
+    final processedUrl = await _loadUrlUseCase(event.url);
 
     final newTabs = state.tabs.map((t) {
       if (t.id == targetTabId) {
@@ -142,7 +186,9 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
     BrowserTabCreated event,
     Emitter<BrowserState> emit,
   ) async {
-    final processedUrl = event.url != null ? _loadUrlUseCase(event.url!) : null;
+    final processedUrl = event.url != null
+        ? await _loadUrlUseCase(event.url!)
+        : null;
     final newTab = _createTabUseCase(
       url: processedUrl,
       isIncognito: event.isIncognito,

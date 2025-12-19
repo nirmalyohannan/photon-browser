@@ -1,9 +1,14 @@
 import 'package:injectable/injectable.dart';
+import '../../../settings/domain/repositories/settings_repository.dart';
 
 @lazySingleton
 class LoadUrlUseCase {
+  final SettingsRepository _settingsRepository;
+
+  LoadUrlUseCase(this._settingsRepository);
+
   /// Transforms user input into a valid URL or Search Query.
-  String call(String input) {
+  Future<String> call(String input) async {
     final trimmed = input.trim();
     if (trimmed.isEmpty) return 'about:blank';
 
@@ -16,8 +21,8 @@ class LoadUrlUseCase {
 
     if (hasSpace || !hasDot) {
       // Treat as search query.
-      // TODO: Support different search engines via SettingsRepository
-      return 'https://www.google.com/search?q=${Uri.encodeComponent(trimmed)}';
+      final searchUrl = await _settingsRepository.getSearchEngineUrl();
+      return '$searchUrl${Uri.encodeComponent(trimmed)}';
     }
 
     if (!hasScheme) {

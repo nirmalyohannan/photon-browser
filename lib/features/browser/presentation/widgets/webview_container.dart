@@ -7,6 +7,8 @@ import '../bloc/browser_bloc.dart';
 import '../bloc/browser_event.dart';
 import '../bloc/browser_state.dart';
 import '../pages/home_page.dart';
+import '../../../history/presentation/bloc/history_bloc.dart';
+import 'package:get_it/get_it.dart';
 
 class WebViewContainer extends StatefulWidget {
   final BrowserTab tab;
@@ -47,6 +49,22 @@ class _WebViewContainerState extends State<WebViewContainer>
         );
         if (_webViewController != null) {
           final currentUrl = await _webViewController!.getUrl();
+          if (state.navigationTargetTabId == widget.tab.id &&
+              state.navigationAction != BrowserNavigationAction.none) {
+            if (state.navigationAction == BrowserNavigationAction.goBack) {
+              _webViewController?.goBack();
+            } else if (state.navigationAction ==
+                BrowserNavigationAction.goForward) {
+              _webViewController?.goForward();
+            }
+            // Reset action? Bloc handles it via BrowserNavigationConsumed?
+            // No, we can't dispatch event here easily without risk of infinite loop if we rely on state change.
+            // But BrowserBloc has `BrowserNavigationConsumed` event.
+            // If we dispatch it, Bloc resets state.
+            // Only dispatch if we actually acted.
+            context.read<BrowserBloc>().add(const BrowserNavigationConsumed());
+          }
+
           if (currentUrl.toString() != tab.url) {
             _webViewController?.loadUrl(
               urlRequest: URLRequest(url: WebUri(tab.url)),
@@ -93,6 +111,12 @@ class _WebViewContainerState extends State<WebViewContainer>
                   context.read<BrowserBloc>().add(
                     BrowserTitleChanged(tabId: widget.tab.id, title: title),
                   );
+                  // Add to history
+                  if (url != null && url.toString() != 'about:blank') {
+                    GetIt.I<HistoryBloc>().add(
+                      AddHistoryEntry(url: url.toString(), title: title),
+                    );
+                  }
                 }
                 // TODO: Update favicon
               },

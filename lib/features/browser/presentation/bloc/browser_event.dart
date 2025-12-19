@@ -37,6 +37,16 @@ class BrowserTabSelected extends BrowserEvent {
   List<Object?> get props => [tabId];
 }
 
+class BrowserLoadUrl extends BrowserEvent {
+  final String? tabId;
+  final String url;
+
+  const BrowserLoadUrl({this.tabId, required this.url});
+
+  @override
+  List<Object?> get props => [tabId, url];
+}
+
 class BrowserUrlChanged extends BrowserEvent {
   final String tabId;
   final String url;
@@ -59,29 +69,26 @@ class BrowserTitleChanged extends BrowserEvent {
 
 class BrowserFaviconChanged extends BrowserEvent {
   final String tabId;
-  final String? faviconUrl;
+  final String faviconUrl;
 
-  const BrowserFaviconChanged({required this.tabId, this.faviconUrl});
+  const BrowserFaviconChanged({required this.tabId, required this.faviconUrl});
 
   @override
   List<Object?> get props => [tabId, faviconUrl];
 }
 
-class BrowserPageLoaded extends BrowserEvent {
-  final String tabId;
-
-  const BrowserPageLoaded(this.tabId);
-
-  @override
-  List<Object?> get props => [tabId];
+class BrowserGoBack extends BrowserEvent {
+  final String? tabId; // Optional: defaults to active
+  const BrowserGoBack({this.tabId});
 }
 
-class BrowserLoadUrl extends BrowserEvent {
-  final String url;
-  final String? tabId; // If null, active tab
+class BrowserGoForward extends BrowserEvent {
+  final String? tabId; // Optional: defaults to active
+  const BrowserGoForward({this.tabId});
+}
 
-  const BrowserLoadUrl({required this.url, this.tabId});
-
+class BrowserNavigationConsumed extends BrowserEvent {
+  const BrowserNavigationConsumed();
   @override
-  List<Object?> get props => [url, tabId];
+  List<Object?> get props => [];
 }

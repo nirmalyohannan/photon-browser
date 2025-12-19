@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/browser_bloc.dart';
 import '../bloc/browser_event.dart';
+import '../../../history/presentation/pages/history_page.dart';
+import '../../../settings/presentation/pages/settings_page.dart';
 
 class HomePage extends StatefulWidget {
   final String tabId;
@@ -75,9 +77,19 @@ class _HomePageState extends State<HomePage> {
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: [
-                  _buildShortcut(Icons.history, 'History', () {}),
+                  _buildShortcut(Icons.history, 'History', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const HistoryPage()),
+                    );
+                  }),
                   _buildShortcut(Icons.bookmark, 'Bookmarks', () {}),
-                  _buildShortcut(Icons.settings, 'Settings', () {}),
+                  _buildShortcut(Icons.settings, 'Settings', () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (_) => const SettingsPage()),
+                    );
+                  }),
                 ],
               ),
             ],
