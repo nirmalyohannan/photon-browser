@@ -3,6 +3,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/di/injection.dart';
 import 'features/browser/presentation/bloc/browser_bloc.dart';
 import 'features/browser/presentation/pages/browser_page.dart';
+import 'features/downloads/presentation/bloc/downloads_bloc.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -15,8 +16,11 @@ class PhotonApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => getIt<BrowserBloc>(),
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider(create: (context) => getIt<BrowserBloc>()),
+        BlocProvider(create: (context) => getIt<DownloadsBloc>()),
+      ],
       child: MaterialApp(
         title: 'Photon Browser',
         debugShowCheckedModeBanner: false,

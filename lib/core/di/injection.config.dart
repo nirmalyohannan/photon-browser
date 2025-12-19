@@ -23,6 +23,12 @@ import '../../features/browser/domain/usecases/create_tab_usecase.dart'
     as _i793;
 import '../../features/browser/domain/usecases/load_url_usecase.dart' as _i647;
 import '../../features/browser/presentation/bloc/browser_bloc.dart' as _i322;
+import '../../features/downloads/data/repositories/downloads_repository_impl.dart'
+    as _i1072;
+import '../../features/downloads/domain/repositories/downloads_repository.dart'
+    as _i1025;
+import '../../features/downloads/presentation/bloc/downloads_bloc.dart'
+    as _i411;
 import '../../features/history/data/repositories/history_repository_impl.dart'
     as _i751;
 import '../../features/history/domain/repositories/history_repository.dart'
@@ -75,8 +81,14 @@ extension GetItInjectableX on _i174.GetIt {
         gh<_i914.BrowserRepository>(),
       ),
     );
+    gh.lazySingleton<_i1025.DownloadsRepository>(
+      () => _i1072.DownloadsRepositoryImpl(gh<_i214.Isar>(), gh<_i706.Uuid>()),
+    );
     gh.factory<_i585.SettingsBloc>(
       () => _i585.SettingsBloc(gh<_i674.SettingsRepository>()),
+    );
+    gh.factory<_i411.DownloadsBloc>(
+      () => _i411.DownloadsBloc(gh<_i1025.DownloadsRepository>()),
     );
     return this;
   }

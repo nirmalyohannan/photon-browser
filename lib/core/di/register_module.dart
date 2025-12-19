@@ -7,6 +7,7 @@ import 'package:uuid/uuid.dart';
 import '../../features/settings/data/models/app_settings.dart';
 import '../../features/browser/data/models/browser_tab_collection.dart';
 import '../../features/history/data/models/history_entry.dart';
+import '../../features/downloads/data/models/download_item_model.dart';
 
 @module
 abstract class RegisterModule {
@@ -20,6 +21,7 @@ abstract class RegisterModule {
       BrowserTabCollectionSchema,
       HistoryEntrySchema,
       AppSettingsSchema,
+      DownloadItemModelSchema,
     ], directory: dir.path);
   }
 }

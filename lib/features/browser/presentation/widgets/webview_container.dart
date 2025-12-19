@@ -1,8 +1,13 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_inappwebview/flutter_inappwebview.dart';
+import 'package:path_provider/path_provider.dart';
 import '../../domain/entities/browser_tab.dart';
+import '../../../downloads/presentation/bloc/downloads_bloc.dart';
+import '../../../downloads/presentation/bloc/downloads_event.dart';
+import '../../../downloads/presentation/widgets/download_dialog.dart';
 import '../bloc/browser_bloc.dart';
 import '../bloc/browser_event.dart';
 import '../bloc/browser_state.dart';
@@ -124,6 +129,44 @@ class _WebViewContainerState extends State<WebViewContainer>
                 if (title != null) {
                   context.read<BrowserBloc>().add(
                     BrowserTitleChanged(tabId: widget.tab.id, title: title),
+                  );
+                }
+              },
+              onDownloadStartRequest: (controller, request) async {
+                final url = request.url.toString();
+                final suggestedFilename =
+                    request.suggestedFilename ?? 'download';
+
+                // Get default download directory
+                Directory? dir;
+                if (defaultTargetPlatform == TargetPlatform.android) {
+                  dir = Directory('/storage/emulated/0/Download');
+                  if (!dir.existsSync()) {
+                    dir = await getDownloadsDirectory();
+                  }
+                } else {
+                  dir = await getDownloadsDirectory();
+                }
+
+                final downloadPath =
+                    dir?.path ??
+                    (await getApplicationDocumentsDirectory()).path;
+
+                final result = await showDialog<String>(
+                  context: context,
+                  builder: (context) => DownloadDialog(
+                    url: url,
+                    suggestedFilename: suggestedFilename,
+                    downloadPath: downloadPath,
+                  ),
+                );
+
+                if (result != null && mounted) {
+                  context.read<DownloadsBloc>().add(
+                    StartDownload(url: url, filename: result),
+                  );
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text('Downloading $result...')),
                   );
                 }
               },
