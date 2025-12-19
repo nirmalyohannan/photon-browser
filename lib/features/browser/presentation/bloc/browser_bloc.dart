@@ -92,7 +92,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
       }).toList();
       emit(state.copyWith(tabs: newTabs, clearCaptureScreenshotTabId: true));
       // Persist session to save the screenshot path
-      _browserRepository.saveSession(newTabs);
+      _browserRepository.saveSession(newTabs, state.activeTabIndex);
     });
   }
 
@@ -111,7 +111,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
     }).toList();
     emit(state.copyWith(tabs: newTabs));
     // Persist session
-    _browserRepository.saveSession(newTabs);
+    _browserRepository.saveSession(newTabs, state.activeTabIndex);
   }
 
   Future<void> _onTitleChanged(
@@ -125,7 +125,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
       return t;
     }).toList();
     emit(state.copyWith(tabs: newTabs));
-    _browserRepository.saveSession(newTabs);
+    _browserRepository.saveSession(newTabs, state.activeTabIndex);
   }
 
   Future<void> _onFaviconChanged(
@@ -139,7 +139,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
       return t;
     }).toList();
     emit(state.copyWith(tabs: newTabs));
-    _browserRepository.saveSession(newTabs);
+    _browserRepository.saveSession(newTabs, state.activeTabIndex);
   }
 
   Future<void> _onLoadUrl(
@@ -167,7 +167,9 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
   ) async {
     emit(state.copyWith(status: BrowserStatus.loading));
     try {
-      final tabs = await _browserRepository.restoreSession();
+      final session = await _browserRepository.restoreSession();
+      final tabs = session.$1;
+      final activeIndex = session.$2;
       if (tabs.isEmpty) {
         final newTab = _createTabUseCase();
         emit(
@@ -182,9 +184,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
           state.copyWith(
             status: BrowserStatus.success,
             tabs: tabs,
-            activeTabIndex: tabs.isNotEmpty
-                ? 0
-                : 0, // Logic to restore active index?
+            activeTabIndex: activeIndex,
           ),
         );
       }
@@ -220,7 +220,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
       ),
     );
     // Persist session if not incognito? Or defer?
-    _browserRepository.saveSession(newTabs);
+    _browserRepository.saveSession(newTabs, newTabs.length - 1);
   }
 
   Future<void> _onTabClosed(
@@ -248,7 +248,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
     }
 
     emit(state.copyWith(tabs: newTabs, activeTabIndex: newActiveIndex));
-    _browserRepository.saveSession(newTabs);
+    _browserRepository.saveSession(newTabs, newActiveIndex);
   }
 
   Future<void> _onTabSelected(
@@ -258,6 +258,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
     final index = state.tabs.indexWhere((t) => t.id == event.tabId);
     if (index != -1) {
       emit(state.copyWith(activeTabIndex: index));
+      _browserRepository.saveSession(state.tabs, index);
     }
   }
 }

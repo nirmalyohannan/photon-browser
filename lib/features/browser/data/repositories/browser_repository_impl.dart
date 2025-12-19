@@ -11,27 +11,44 @@ class BrowserRepositoryImpl implements BrowserRepository {
   BrowserRepositoryImpl(this._isar);
 
   @override
-  Future<void> saveSession(List<BrowserTab> tabs) async {
+  Future<void> saveSession(List<BrowserTab> tabs, int activeIndex) async {
     // Filter out incognito tabs and map to collection
-    final tabCollections = tabs
-        .where((t) => !t.isIncognito)
-        .map((t) => BrowserTabCollection.fromDomain(t))
-        .toList();
+    final tabCollections = <BrowserTabCollection>[];
+    for (int i = 0; i < tabs.length; i++) {
+      if (!tabs[i].isIncognito) {
+        final collection = BrowserTabCollection.fromDomain(tabs[i]);
+        if (i == activeIndex) {
+          collection.isLastActive = true;
+        }
+        tabCollections.add(collection);
+      }
+    }
 
     await _isar.writeTxn(() async {
-      // Clear previous specific session or just overwrite?
-      // Since we want to mirror the current state:
-      // 1. Clear all old tabs (or smart diff, but clear is safer for strict sync)
-      // 2. Put all new tabs
       await _isar.browserTabCollections.clear();
       await _isar.browserTabCollections.putAll(tabCollections);
     });
   }
 
   @override
-  Future<List<BrowserTab>> restoreSession() async {
+  Future<(List<BrowserTab>, int)> restoreSession() async {
     final collections = await _isar.browserTabCollections.where().findAll();
-    return collections.map((c) => c.toDomain()).toList();
+    if (collections.isEmpty) {
+      return (<BrowserTab>[], 0);
+    }
+
+    final tabs = collections.map((c) => c.toDomain()).toList();
+    var activeIndex = 0;
+
+    // Find the tab that was last active
+    for (int i = 0; i < collections.length; i++) {
+      if (collections[i].isLastActive) {
+        activeIndex = i;
+        break;
+      }
+    }
+
+    return (tabs, activeIndex);
   }
 
   @override

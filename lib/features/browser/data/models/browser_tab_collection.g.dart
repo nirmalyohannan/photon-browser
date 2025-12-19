@@ -28,19 +28,24 @@ const BrowserTabCollectionSchema = CollectionSchema(
       name: r'isIncognito',
       type: IsarType.bool,
     ),
-    r'screenshotPath': PropertySchema(
+    r'isLastActive': PropertySchema(
       id: 2,
+      name: r'isLastActive',
+      type: IsarType.bool,
+    ),
+    r'screenshotPath': PropertySchema(
+      id: 3,
       name: r'screenshotPath',
       type: IsarType.string,
     ),
     r'scrollPosition': PropertySchema(
-      id: 3,
+      id: 4,
       name: r'scrollPosition',
       type: IsarType.double,
     ),
-    r'tabId': PropertySchema(id: 4, name: r'tabId', type: IsarType.string),
-    r'title': PropertySchema(id: 5, name: r'title', type: IsarType.string),
-    r'url': PropertySchema(id: 6, name: r'url', type: IsarType.string),
+    r'tabId': PropertySchema(id: 5, name: r'tabId', type: IsarType.string),
+    r'title': PropertySchema(id: 6, name: r'title', type: IsarType.string),
+    r'url': PropertySchema(id: 7, name: r'url', type: IsarType.string),
   },
 
   estimateSize: _browserTabCollectionEstimateSize,
@@ -104,11 +109,12 @@ void _browserTabCollectionSerialize(
 ) {
   writer.writeLongList(offsets[0], object.favicon);
   writer.writeBool(offsets[1], object.isIncognito);
-  writer.writeString(offsets[2], object.screenshotPath);
-  writer.writeDouble(offsets[3], object.scrollPosition);
-  writer.writeString(offsets[4], object.tabId);
-  writer.writeString(offsets[5], object.title);
-  writer.writeString(offsets[6], object.url);
+  writer.writeBool(offsets[2], object.isLastActive);
+  writer.writeString(offsets[3], object.screenshotPath);
+  writer.writeDouble(offsets[4], object.scrollPosition);
+  writer.writeString(offsets[5], object.tabId);
+  writer.writeString(offsets[6], object.title);
+  writer.writeString(offsets[7], object.url);
 }
 
 BrowserTabCollection _browserTabCollectionDeserialize(
@@ -121,11 +127,12 @@ BrowserTabCollection _browserTabCollectionDeserialize(
   object.favicon = reader.readLongList(offsets[0]);
   object.id = id;
   object.isIncognito = reader.readBool(offsets[1]);
-  object.screenshotPath = reader.readStringOrNull(offsets[2]);
-  object.scrollPosition = reader.readDouble(offsets[3]);
-  object.tabId = reader.readString(offsets[4]);
-  object.title = reader.readString(offsets[5]);
-  object.url = reader.readString(offsets[6]);
+  object.isLastActive = reader.readBool(offsets[2]);
+  object.screenshotPath = reader.readStringOrNull(offsets[3]);
+  object.scrollPosition = reader.readDouble(offsets[4]);
+  object.tabId = reader.readString(offsets[5]);
+  object.title = reader.readString(offsets[6]);
+  object.url = reader.readString(offsets[7]);
   return object;
 }
 
@@ -141,14 +148,16 @@ P _browserTabCollectionDeserializeProp<P>(
     case 1:
       return (reader.readBool(offset)) as P;
     case 2:
-      return (reader.readStringOrNull(offset)) as P;
+      return (reader.readBool(offset)) as P;
     case 3:
-      return (reader.readDouble(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 4:
-      return (reader.readString(offset)) as P;
+      return (reader.readDouble(offset)) as P;
     case 5:
       return (reader.readString(offset)) as P;
     case 6:
+      return (reader.readString(offset)) as P;
+    case 7:
       return (reader.readString(offset)) as P;
     default:
       throw IsarError('Unknown property with id $propertyId');
@@ -623,6 +632,19 @@ extension BrowserTabCollectionQueryFilter
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.equalTo(property: r'isIncognito', value: value),
+      );
+    });
+  }
+
+  QueryBuilder<
+    BrowserTabCollection,
+    BrowserTabCollection,
+    QAfterFilterCondition
+  >
+  isLastActiveEqualTo(bool value) {
+    return QueryBuilder.apply(this, (query) {
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'isLastActive', value: value),
       );
     });
   }
@@ -1498,6 +1520,20 @@ extension BrowserTabCollectionQuerySortBy
   }
 
   QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
+  sortByIsLastActive() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLastActive', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
+  sortByIsLastActiveDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLastActive', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
   sortByScreenshotPath() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'screenshotPath', Sort.asc);
@@ -1599,6 +1635,20 @@ extension BrowserTabCollectionQuerySortThenBy
   }
 
   QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
+  thenByIsLastActive() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLastActive', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
+  thenByIsLastActiveDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'isLastActive', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
   thenByScreenshotPath() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'screenshotPath', Sort.asc);
@@ -1686,6 +1736,13 @@ extension BrowserTabCollectionQueryWhereDistinct
   }
 
   QueryBuilder<BrowserTabCollection, BrowserTabCollection, QDistinct>
+  distinctByIsLastActive() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addDistinctBy(r'isLastActive');
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QDistinct>
   distinctByScreenshotPath({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addDistinctBy(
@@ -1748,6 +1805,13 @@ extension BrowserTabCollectionQueryProperty
   isIncognitoProperty() {
     return QueryBuilder.apply(this, (query) {
       return query.addPropertyName(r'isIncognito');
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, bool, QQueryOperations>
+  isLastActiveProperty() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addPropertyName(r'isLastActive');
     });
   }
 

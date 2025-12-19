@@ -23,6 +23,8 @@ class BrowserTabCollection {
 
   List<int>? favicon;
 
+  late bool isLastActive;
+
   /// Map from Domain to Isar Collection
   static BrowserTabCollection fromDomain(BrowserTab tab) {
     return BrowserTabCollection()
@@ -32,7 +34,8 @@ class BrowserTabCollection {
       ..isIncognito = tab.isIncognito
       ..scrollPosition = tab.scrollPosition
       ..screenshotPath = tab.screenshotPath
-      ..favicon = tab.favicon?.toList();
+      ..favicon = tab.favicon?.toList()
+      ..isLastActive = false;
   }
 
   /// Map from Isar Collection to Domain
