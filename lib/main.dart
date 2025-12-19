@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'core/di/injection.dart';
+import 'features/browser/presentation/bloc/browser_bloc.dart';
 import 'features/browser/presentation/pages/browser_page.dart';
 
 void main() async {
@@ -13,14 +15,17 @@ class PhotonApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Photon Browser',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
-        useMaterial3: true,
+    return BlocProvider(
+      create: (context) => getIt<BrowserBloc>(),
+      child: MaterialApp(
+        title: 'Photon Browser',
+        debugShowCheckedModeBanner: false,
+        theme: ThemeData(
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          useMaterial3: true,
+        ),
+        home: const BrowserPage(),
       ),
-      home: const BrowserPage(),
     );
   }
 }
