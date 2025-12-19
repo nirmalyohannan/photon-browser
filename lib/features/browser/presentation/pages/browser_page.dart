@@ -6,6 +6,7 @@ import '../../../history/presentation/pages/history_page.dart';
 import '../../../settings/presentation/pages/settings_page.dart';
 import '../bloc/browser_bloc.dart';
 import '../bloc/browser_state.dart';
+import '../bloc/browser_event.dart';
 import '../widgets/omnibox.dart';
 import '../widgets/webview_container.dart';
 import 'tab_switcher_page.dart';
@@ -114,17 +115,31 @@ class BrowserView extends StatelessWidget {
                   ),
                 ),
               ),
+
               Positioned.fill(
                 child: Material(
                   color: Colors.transparent,
                   child: InkWell(
-                    onTap: () {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (_) => const TabSwitcherPage(),
-                        ),
-                      );
+                    onTap: () async {
+                      // Trigger screenshot logic
+                      final activeTabId = state.activeTab?.id;
+                      if (activeTabId != null) {
+                        context.read<BrowserBloc>().add(
+                          BrowserCaptureScreenshot(activeTabId),
+                        );
+                        // Short delay to allow screenshot to be captured and saved
+                        // This ensures the Hero animation has a valid image source
+                        await Future.delayed(const Duration(milliseconds: 100));
+                      }
+
+                      if (context.mounted) {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => const TabSwitcherPage(),
+                          ),
+                        );
+                      }
                     },
                   ),
                 ),

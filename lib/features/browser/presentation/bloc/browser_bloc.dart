@@ -75,6 +75,25 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
         ),
       );
     });
+
+    on<BrowserCaptureScreenshot>((event, emit) {
+      emit(state.copyWith(captureScreenshotTabId: event.tabId));
+      // We need to consume it eventually? No, the view should consume it by dispatching captured.
+      // Or we can reset it after short delay? No.
+      // Best to have a "BrowserScreenshotConsumed" but for now let's rely on view acting on it quickly.
+    });
+
+    on<BrowserScreenshotUpdated>((event, emit) {
+      final newTabs = state.tabs.map((t) {
+        if (t.id == event.tabId) {
+          return t.copyWith(screenshotPath: event.path);
+        }
+        return t;
+      }).toList();
+      emit(state.copyWith(tabs: newTabs, clearCaptureScreenshotTabId: true));
+      // Persist session to save the screenshot path
+      _browserRepository.saveSession(newTabs);
+    });
   }
 
   Future<void> _onUrlChanged(

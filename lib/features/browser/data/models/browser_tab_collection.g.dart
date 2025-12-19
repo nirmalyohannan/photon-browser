@@ -28,10 +28,10 @@ const BrowserTabCollectionSchema = CollectionSchema(
       name: r'isIncognito',
       type: IsarType.bool,
     ),
-    r'screenshot': PropertySchema(
+    r'screenshotPath': PropertySchema(
       id: 2,
-      name: r'screenshot',
-      type: IsarType.longList,
+      name: r'screenshotPath',
+      type: IsarType.string,
     ),
     r'scrollPosition': PropertySchema(
       id: 3,
@@ -85,9 +85,9 @@ int _browserTabCollectionEstimateSize(
     }
   }
   {
-    final value = object.screenshot;
+    final value = object.screenshotPath;
     if (value != null) {
-      bytesCount += 3 + value.length * 8;
+      bytesCount += 3 + value.length * 3;
     }
   }
   bytesCount += 3 + object.tabId.length * 3;
@@ -104,7 +104,7 @@ void _browserTabCollectionSerialize(
 ) {
   writer.writeLongList(offsets[0], object.favicon);
   writer.writeBool(offsets[1], object.isIncognito);
-  writer.writeLongList(offsets[2], object.screenshot);
+  writer.writeString(offsets[2], object.screenshotPath);
   writer.writeDouble(offsets[3], object.scrollPosition);
   writer.writeString(offsets[4], object.tabId);
   writer.writeString(offsets[5], object.title);
@@ -121,7 +121,7 @@ BrowserTabCollection _browserTabCollectionDeserialize(
   object.favicon = reader.readLongList(offsets[0]);
   object.id = id;
   object.isIncognito = reader.readBool(offsets[1]);
-  object.screenshot = reader.readLongList(offsets[2]);
+  object.screenshotPath = reader.readStringOrNull(offsets[2]);
   object.scrollPosition = reader.readDouble(offsets[3]);
   object.tabId = reader.readString(offsets[4]);
   object.title = reader.readString(offsets[5]);
@@ -141,7 +141,7 @@ P _browserTabCollectionDeserializeProp<P>(
     case 1:
       return (reader.readBool(offset)) as P;
     case 2:
-      return (reader.readLongList(offset)) as P;
+      return (reader.readStringOrNull(offset)) as P;
     case 3:
       return (reader.readDouble(offset)) as P;
     case 4:
@@ -632,10 +632,10 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotIsNull() {
+  screenshotPathIsNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        const FilterCondition.isNull(property: r'screenshot'),
+        const FilterCondition.isNull(property: r'screenshotPath'),
       );
     });
   }
@@ -645,10 +645,10 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotIsNotNull() {
+  screenshotPathIsNotNull() {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        const FilterCondition.isNotNull(property: r'screenshot'),
+        const FilterCondition.isNotNull(property: r'screenshotPath'),
       );
     });
   }
@@ -658,10 +658,14 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotElementEqualTo(int value) {
+  screenshotPathEqualTo(String? value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
-        FilterCondition.equalTo(property: r'screenshot', value: value),
+        FilterCondition.equalTo(
+          property: r'screenshotPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
       );
     });
   }
@@ -671,13 +675,18 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotElementGreaterThan(int value, {bool include = false}) {
+  screenshotPathGreaterThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.greaterThan(
           include: include,
-          property: r'screenshot',
+          property: r'screenshotPath',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
@@ -688,13 +697,18 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotElementLessThan(int value, {bool include = false}) {
+  screenshotPathLessThan(
+    String? value, {
+    bool include = false,
+    bool caseSensitive = true,
+  }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.lessThan(
           include: include,
-          property: r'screenshot',
+          property: r'screenshotPath',
           value: value,
+          caseSensitive: caseSensitive,
         ),
       );
     });
@@ -705,20 +719,22 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotElementBetween(
-    int lower,
-    int upper, {
+  screenshotPathBetween(
+    String? lower,
+    String? upper, {
     bool includeLower = true,
     bool includeUpper = true,
+    bool caseSensitive = true,
   }) {
     return QueryBuilder.apply(this, (query) {
       return query.addFilterCondition(
         FilterCondition.between(
-          property: r'screenshot',
+          property: r'screenshotPath',
           lower: lower,
           includeLower: includeLower,
           upper: upper,
           includeUpper: includeUpper,
+          caseSensitive: caseSensitive,
         ),
       );
     });
@@ -729,9 +745,15 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotLengthEqualTo(int length) {
+  screenshotPathStartsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'screenshot', length, true, length, true);
+      return query.addFilterCondition(
+        FilterCondition.startsWith(
+          property: r'screenshotPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -740,9 +762,15 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotIsEmpty() {
+  screenshotPathEndsWith(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'screenshot', 0, true, 0, true);
+      return query.addFilterCondition(
+        FilterCondition.endsWith(
+          property: r'screenshotPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -751,9 +779,15 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotIsNotEmpty() {
+  screenshotPathContains(String value, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'screenshot', 0, false, 999999, true);
+      return query.addFilterCondition(
+        FilterCondition.contains(
+          property: r'screenshotPath',
+          value: value,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -762,9 +796,15 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotLengthLessThan(int length, {bool include = false}) {
+  screenshotPathMatches(String pattern, {bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'screenshot', 0, true, length, include);
+      return query.addFilterCondition(
+        FilterCondition.matches(
+          property: r'screenshotPath',
+          wildcard: pattern,
+          caseSensitive: caseSensitive,
+        ),
+      );
     });
   }
 
@@ -773,9 +813,11 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotLengthGreaterThan(int length, {bool include = false}) {
+  screenshotPathIsEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(r'screenshot', length, include, 999999, true);
+      return query.addFilterCondition(
+        FilterCondition.equalTo(property: r'screenshotPath', value: ''),
+      );
     });
   }
 
@@ -784,19 +826,10 @@ extension BrowserTabCollectionQueryFilter
     BrowserTabCollection,
     QAfterFilterCondition
   >
-  screenshotLengthBetween(
-    int lower,
-    int upper, {
-    bool includeLower = true,
-    bool includeUpper = true,
-  }) {
+  screenshotPathIsNotEmpty() {
     return QueryBuilder.apply(this, (query) {
-      return query.listLength(
-        r'screenshot',
-        lower,
-        includeLower,
-        upper,
-        includeUpper,
+      return query.addFilterCondition(
+        FilterCondition.greaterThan(property: r'screenshotPath', value: ''),
       );
     });
   }
@@ -1465,6 +1498,20 @@ extension BrowserTabCollectionQuerySortBy
   }
 
   QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
+  sortByScreenshotPath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenshotPath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
+  sortByScreenshotPathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenshotPath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
   sortByScrollPosition() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'scrollPosition', Sort.asc);
@@ -1552,6 +1599,20 @@ extension BrowserTabCollectionQuerySortThenBy
   }
 
   QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
+  thenByScreenshotPath() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenshotPath', Sort.asc);
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
+  thenByScreenshotPathDesc() {
+    return QueryBuilder.apply(this, (query) {
+      return query.addSortBy(r'screenshotPath', Sort.desc);
+    });
+  }
+
+  QueryBuilder<BrowserTabCollection, BrowserTabCollection, QAfterSortBy>
   thenByScrollPosition() {
     return QueryBuilder.apply(this, (query) {
       return query.addSortBy(r'scrollPosition', Sort.asc);
@@ -1625,9 +1686,12 @@ extension BrowserTabCollectionQueryWhereDistinct
   }
 
   QueryBuilder<BrowserTabCollection, BrowserTabCollection, QDistinct>
-  distinctByScreenshot() {
+  distinctByScreenshotPath({bool caseSensitive = true}) {
     return QueryBuilder.apply(this, (query) {
-      return query.addDistinctBy(r'screenshot');
+      return query.addDistinctBy(
+        r'screenshotPath',
+        caseSensitive: caseSensitive,
+      );
     });
   }
 
@@ -1687,10 +1751,10 @@ extension BrowserTabCollectionQueryProperty
     });
   }
 
-  QueryBuilder<BrowserTabCollection, List<int>?, QQueryOperations>
-  screenshotProperty() {
+  QueryBuilder<BrowserTabCollection, String?, QQueryOperations>
+  screenshotPathProperty() {
     return QueryBuilder.apply(this, (query) {
-      return query.addPropertyName(r'screenshot');
+      return query.addPropertyName(r'screenshotPath');
     });
   }
 

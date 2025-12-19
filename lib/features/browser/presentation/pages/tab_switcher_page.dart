@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import '../bloc/browser_bloc.dart';
@@ -44,6 +45,7 @@ class TabSwitcherPage extends StatelessWidget {
             itemBuilder: (context, index) {
               final tab = state.tabs[index];
               final isActive = index == state.activeTabIndex;
+
               return GestureDetector(
                 onTap: () {
                   context.read<BrowserBloc>().add(BrowserTabSelected(tab.id));
@@ -102,6 +104,9 @@ class TabSwitcherPage extends StatelessWidget {
                                 style: const TextStyle(
                                   fontSize: 12,
                                   overflow: TextOverflow.ellipsis,
+                                  color: Colors.black, // Ensure text is visible
+                                  decoration:
+                                      TextDecoration.none, // Fix Hero text
                                 ),
                               ),
                             ),
@@ -111,7 +116,11 @@ class TabSwitcherPage extends StatelessWidget {
                                   BrowserTabClosed(tab.id),
                                 );
                               },
-                              child: const Icon(Icons.close, size: 16),
+                              child: const Icon(
+                                Icons.close,
+                                size: 16,
+                                color: Colors.black,
+                              ),
                             ),
                           ],
                         ),
@@ -125,16 +134,32 @@ class TabSwitcherPage extends StatelessWidget {
                               bottom: Radius.circular(12),
                             ),
                           ),
-                          child: Center(
-                            child: Text(
-                              tab.url,
-                              style: const TextStyle(
-                                fontSize: 10,
-                                color: Colors.grey,
-                              ),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
+                          clipBehavior: Clip.antiAlias,
+                          child: tab.screenshotPath != null
+                              ? Image.file(
+                                  File(tab.screenshotPath!),
+                                  fit: BoxFit.cover,
+                                  key: ValueKey(
+                                    tab.screenshotPath,
+                                  ), // Force refresh if path changes
+                                  errorBuilder: (_, __, ___) => const Center(
+                                    child: Icon(
+                                      Icons.broken_image,
+                                      color: Colors.grey,
+                                    ),
+                                  ),
+                                )
+                              : Center(
+                                  child: Text(
+                                    tab.url,
+                                    style: const TextStyle(
+                                      fontSize: 10,
+                                      color: Colors.grey,
+                                      decoration: TextDecoration.none,
+                                    ),
+                                    textAlign: TextAlign.center,
+                                  ),
+                                ),
                         ),
                       ),
                     ],

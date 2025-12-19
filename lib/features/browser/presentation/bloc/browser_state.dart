@@ -11,6 +11,7 @@ class BrowserState extends Equatable {
   final int activeTabIndex;
   final BrowserNavigationAction navigationAction;
   final String? navigationTargetTabId;
+  final String? captureScreenshotTabId;
 
   const BrowserState({
     this.status = BrowserStatus.initial,
@@ -18,6 +19,7 @@ class BrowserState extends Equatable {
     this.activeTabIndex = 0,
     this.navigationAction = BrowserNavigationAction.none,
     this.navigationTargetTabId,
+    this.captureScreenshotTabId,
   });
 
   BrowserTab? get activeTab {
@@ -33,13 +35,19 @@ class BrowserState extends Equatable {
     int? activeTabIndex,
     BrowserNavigationAction? navigationAction,
     String? navigationTargetTabId,
+    String? captureScreenshotTabId,
+    bool clearCaptureScreenshotTabId = false,
   }) {
     return BrowserState(
       status: status ?? this.status,
       tabs: tabs ?? this.tabs,
       activeTabIndex: activeTabIndex ?? this.activeTabIndex,
       navigationAction: navigationAction ?? BrowserNavigationAction.none,
-      navigationTargetTabId: navigationTargetTabId,
+      navigationTargetTabId:
+          navigationTargetTabId ?? this.navigationTargetTabId,
+      captureScreenshotTabId: clearCaptureScreenshotTabId
+          ? null
+          : (captureScreenshotTabId ?? this.captureScreenshotTabId),
     );
   }
 
@@ -50,5 +58,6 @@ class BrowserState extends Equatable {
     activeTabIndex,
     navigationAction,
     navigationTargetTabId,
+    captureScreenshotTabId,
   ];
 }

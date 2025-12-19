@@ -12,7 +12,7 @@ class BrowserTab extends Equatable {
   // Screenshot is often heavy, keep it out of the domain model if possible,
   // or nullable and not persisted tightly. But for tab switcher we need it.
   // We can store a path or bytes. Bytes is easier for in-memory.
-  final Uint8List? screenshot;
+  final String? screenshotPath;
 
   const BrowserTab({
     required this.id,
@@ -22,7 +22,7 @@ class BrowserTab extends Equatable {
     this.scrollPosition = 0.0,
     this.isLoading = false,
     this.favicon,
-    this.screenshot,
+    this.screenshotPath,
   });
 
   BrowserTab copyWith({
@@ -33,7 +33,7 @@ class BrowserTab extends Equatable {
     double? scrollPosition,
     bool? isLoading,
     Uint8List? favicon,
-    Uint8List? screenshot,
+    String? screenshotPath,
   }) {
     return BrowserTab(
       id: id ?? this.id,
@@ -43,7 +43,7 @@ class BrowserTab extends Equatable {
       scrollPosition: scrollPosition ?? this.scrollPosition,
       isLoading: isLoading ?? this.isLoading,
       favicon: favicon ?? this.favicon,
-      screenshot: screenshot ?? this.screenshot,
+      screenshotPath: screenshotPath ?? this.screenshotPath,
     );
   }
 
@@ -56,6 +56,6 @@ class BrowserTab extends Equatable {
     scrollPosition,
     isLoading,
     favicon,
-    screenshot,
+    screenshotPath,
   ];
 }

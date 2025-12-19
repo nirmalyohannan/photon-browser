@@ -36,24 +36,56 @@ class _WebViewContainerState extends State<WebViewContainer>
     super.build(context);
     return BlocListener<BrowserBloc, BrowserState>(
       listenWhen: (previous, current) {
-        // Listen if this tab's URL changed in state AND it matches our ID
-        final prevTab = previous.tabs.firstWhere(
-          (t) => t.id == widget.tab.id,
-          orElse: () => widget.tab,
-        );
-        final currTab = current.tabs.firstWhere(
-          (t) => t.id == widget.tab.id,
-          orElse: () => widget.tab,
-        );
-        return prevTab.url != currTab.url;
+        return previous.tabs != current.tabs ||
+            previous.navigationTargetTabId != current.navigationTargetTabId ||
+            previous.navigationAction != current.navigationAction ||
+            previous.captureScreenshotTabId != current.captureScreenshotTabId;
       },
       listener: (context, state) async {
         final tab = state.tabs.firstWhere(
           (t) => t.id == widget.tab.id,
           orElse: () => widget.tab,
         );
-        if (_webViewController != null) {
+
+        // Handle Screenshot Capture
+        if (state.captureScreenshotTabId == widget.tab.id) {
+          if (_webViewController != null) {
+            try {
+              final screenshot = await _webViewController!.takeScreenshot(
+                screenshotConfiguration: ScreenshotConfiguration(
+                  compressFormat: CompressFormat.JPEG,
+                  quality: 50, // Optimize size
+                ),
+              );
+              if (screenshot != null) {
+                final dir = await getApplicationDocumentsDirectory();
+                final path = '${dir.path}/tab_screenshot_${widget.tab.id}.jpg';
+                final file = File(path);
+                await file.writeAsBytes(screenshot);
+
+                if (mounted) {
+                  context.read<BrowserBloc>().add(
+                    BrowserScreenshotUpdated(tabId: widget.tab.id, path: path),
+                  );
+                }
+              }
+            } catch (e) {
+              debugPrint('Screenshot capture failed: $e');
+            }
+          }
+          // We don't need to explicitly consume here if we switch state or if relying on "change" is enough.
+          // But to be safe, maybe we should? For now, we rely on the event causing a state change (screenshot updated)
+          // which might trigger this again if we are not careful?
+          // No, because captureScreenshotTabId won't change in that event.
+          // So listenWhen `previous.captureScreenshotTabId != current.captureScreenshotTabId` protects us.
+          // But wait, if I ask for capture (ID=A), listener fires.
+          // Then I update screenshot (ID=A), listener fires again?
+          // previous.captureScreenshotTabId (A) == current.captureScreenshotTabId (A). Logic returns false. Safe.
+        }
+
+        if (_webViewController != null && tab.url.isNotEmpty) {
           final currentUrl = await _webViewController!.getUrl();
+          // Navigation Logic
           if (state.navigationTargetTabId == widget.tab.id &&
               state.navigationAction != BrowserNavigationAction.none) {
             if (state.navigationAction == BrowserNavigationAction.goBack) {
@@ -62,15 +94,13 @@ class _WebViewContainerState extends State<WebViewContainer>
                 BrowserNavigationAction.goForward) {
               _webViewController?.goForward();
             }
-            // Reset action? Bloc handles it via BrowserNavigationConsumed?
-            // No, we can't dispatch event here easily without risk of infinite loop if we rely on state change.
-            // But BrowserBloc has `BrowserNavigationConsumed` event.
-            // If we dispatch it, Bloc resets state.
-            // Only dispatch if we actually acted.
             context.read<BrowserBloc>().add(const BrowserNavigationConsumed());
           }
 
-          if (currentUrl.toString() != tab.url) {
+          if (currentUrl != null && currentUrl.toString() != tab.url) {
+            // Only load if it's a real change and not just a fragment or we are not loading?
+            // Actually validation here is tricky.
+            // Best to rely on Bloc's URL.
             _webViewController?.loadUrl(
               urlRequest: URLRequest(url: WebUri(tab.url)),
             );

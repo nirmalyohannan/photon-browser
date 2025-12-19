@@ -39,13 +39,13 @@ class BrowserTabSelected extends BrowserEvent {
 }
 
 class BrowserLoadUrl extends BrowserEvent {
-  final String? tabId;
   final String url;
+  final String? tabId;
 
-  const BrowserLoadUrl({this.tabId, required this.url});
+  const BrowserLoadUrl({required this.url, this.tabId});
 
   @override
-  List<Object?> get props => [tabId, url];
+  List<Object?> get props => [url, tabId];
 }
 
 class BrowserUrlChanged extends BrowserEvent {
@@ -79,17 +79,34 @@ class BrowserFaviconChanged extends BrowserEvent {
 }
 
 class BrowserGoBack extends BrowserEvent {
-  final String? tabId; // Optional: defaults to active
+  final String? tabId;
   const BrowserGoBack({this.tabId});
 }
 
 class BrowserGoForward extends BrowserEvent {
-  final String? tabId; // Optional: defaults to active
+  final String? tabId;
   const BrowserGoForward({this.tabId});
 }
 
 class BrowserNavigationConsumed extends BrowserEvent {
   const BrowserNavigationConsumed();
+}
+
+class BrowserScreenshotUpdated extends BrowserEvent {
+  final String tabId;
+  final String path;
+
+  const BrowserScreenshotUpdated({required this.tabId, required this.path});
+
   @override
-  List<Object?> get props => [];
+  List<Object?> get props => [tabId, path];
+}
+
+class BrowserCaptureScreenshot extends BrowserEvent {
+  final String tabId;
+
+  const BrowserCaptureScreenshot(this.tabId);
+
+  @override
+  List<Object?> get props => [tabId];
 }

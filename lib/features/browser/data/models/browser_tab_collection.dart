@@ -19,7 +19,7 @@ class BrowserTabCollection {
   // Isar doesn't support storing Uint8List directly as a blob efficiently in the main object
   // if it's very large, but for thumbnails it's okay.
   // Isar supports List<int>.
-  List<int>? screenshot;
+  String? screenshotPath;
 
   List<int>? favicon;
 
@@ -31,7 +31,7 @@ class BrowserTabCollection {
       ..title = tab.title
       ..isIncognito = tab.isIncognito
       ..scrollPosition = tab.scrollPosition
-      ..screenshot = tab.screenshot?.toList()
+      ..screenshotPath = tab.screenshotPath
       ..favicon = tab.favicon?.toList();
   }
 
@@ -45,7 +45,7 @@ class BrowserTabCollection {
       scrollPosition: scrollPosition,
       // isLoading isn't persisted
       isLoading: false,
-      screenshot: screenshot != null ? Uint8List.fromList(screenshot!) : null,
+      screenshotPath: screenshotPath,
       favicon: favicon != null ? Uint8List.fromList(favicon!) : null,
     );
   }
