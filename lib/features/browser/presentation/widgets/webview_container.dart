@@ -6,6 +6,7 @@ import '../../domain/entities/browser_tab.dart';
 import '../bloc/browser_bloc.dart';
 import '../bloc/browser_event.dart';
 import '../bloc/browser_state.dart';
+import '../pages/home_page.dart';
 
 class WebViewContainer extends StatefulWidget {
   final BrowserTab tab;
@@ -53,48 +54,56 @@ class _WebViewContainerState extends State<WebViewContainer>
           }
         }
       },
-      child: InAppWebView(
-        key: ValueKey(widget.tab.id),
-        initialUrlRequest: URLRequest(url: WebUri(widget.tab.url)),
-        initialSettings: InAppWebViewSettings(
-          isInspectable: kDebugMode,
-          incognito: widget.tab.isIncognito,
-          useHybridComposition: true, // Better for Android type input
-        ),
-        onWebViewCreated: (controller) {
-          _webViewController = controller;
-        },
-        onLoadStart: (controller, url) {
-          if (url != null) {
-            // We update Bloc, but we should distinguish "Browser navigated" vs "User requested navigation".
-            // If Browser navigated, we update URL in Bloc.
-            context.read<BrowserBloc>().add(
-              BrowserUrlChanged(tabId: widget.tab.id, url: url.toString()),
-            );
-          }
-        },
-        onLoadStop: (controller, url) async {
-          if (url != null) {
-            context.read<BrowserBloc>().add(
-              BrowserUrlChanged(tabId: widget.tab.id, url: url.toString()),
-            );
-          }
-          final title = await controller.getTitle();
-          if (title != null) {
-            context.read<BrowserBloc>().add(
-              BrowserTitleChanged(tabId: widget.tab.id, title: title),
-            );
-          }
-          // TODO: Update favicon
-        },
-        onTitleChanged: (controller, title) {
-          if (title != null) {
-            context.read<BrowserBloc>().add(
-              BrowserTitleChanged(tabId: widget.tab.id, title: title),
-            );
-          }
-        },
-      ),
+      child: widget.tab.url == 'about:blank'
+          ? HomePage(tabId: widget.tab.id)
+          : InAppWebView(
+              key: ValueKey(widget.tab.id),
+              initialUrlRequest: URLRequest(url: WebUri(widget.tab.url)),
+              initialSettings: InAppWebViewSettings(
+                isInspectable: kDebugMode,
+                incognito: widget.tab.isIncognito,
+                useHybridComposition: true, // Better for Android type input
+              ),
+              onWebViewCreated: (controller) {
+                _webViewController = controller;
+              },
+              onLoadStart: (controller, url) {
+                if (url != null) {
+                  // We update Bloc, but we should distinguish "Browser navigated" vs "User requested navigation".
+                  // If Browser navigated, we update URL in Bloc.
+                  context.read<BrowserBloc>().add(
+                    BrowserUrlChanged(
+                      tabId: widget.tab.id,
+                      url: url.toString(),
+                    ),
+                  );
+                }
+              },
+              onLoadStop: (controller, url) async {
+                if (url != null) {
+                  context.read<BrowserBloc>().add(
+                    BrowserUrlChanged(
+                      tabId: widget.tab.id,
+                      url: url.toString(),
+                    ),
+                  );
+                }
+                final title = await controller.getTitle();
+                if (title != null) {
+                  context.read<BrowserBloc>().add(
+                    BrowserTitleChanged(tabId: widget.tab.id, title: title),
+                  );
+                }
+                // TODO: Update favicon
+              },
+              onTitleChanged: (controller, title) {
+                if (title != null) {
+                  context.read<BrowserBloc>().add(
+                    BrowserTitleChanged(tabId: widget.tab.id, title: title),
+                  );
+                }
+              },
+            ),
     );
   }
 }
