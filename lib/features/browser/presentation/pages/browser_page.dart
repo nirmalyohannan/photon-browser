@@ -26,33 +26,52 @@ class BrowserView extends StatelessWidget {
   @override
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.white,
-      body: SafeArea(
-        child: BlocBuilder<BrowserBloc, BrowserState>(
-          buildWhen: (previous, current) =>
-              previous.tabs != current.tabs ||
-              previous.activeTabIndex != current.activeTabIndex,
-          builder: (context, state) {
-            return Column(
-              children: [
-                // Tabs / Content
-                Expanded(
-                  child: state.tabs.isEmpty
-                      ? const Center(child: Text('No Tabs'))
-                      : IndexedStack(
-                          index: state.activeTabIndex,
-                          children: state.tabs
-                              .map((tab) => WebViewContainer(tab: tab))
-                              .toList(),
-                        ),
-                ),
-                // Bottom Bar (OmniBox + Controls)
-                const OmniBox(),
-                _buildBottomBar(context, state),
-              ],
-            );
-          },
+    return PopScope(
+      canPop: false,
+      onPopInvoked: (didPop) async {
+        if (didPop) return;
+        final activeTab = context.read<BrowserBloc>().state.activeTab;
+        if (activeTab?.canGoBack ?? false) {
+          context.read<BrowserBloc>().add(const BrowserGoBack());
+        } else {
+          // Trigger screenshot logic before leaving?
+          // Ideally we should but simpler to just navigate for now.
+          // Or we can reuse the screenshot logic from the button.
+          // For now, straight push.
+          Navigator.push(
+            context,
+            MaterialPageRoute(builder: (_) => const TabSwitcherPage()),
+          );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: Colors.white,
+        body: SafeArea(
+          child: BlocBuilder<BrowserBloc, BrowserState>(
+            buildWhen: (previous, current) =>
+                previous.tabs != current.tabs ||
+                previous.activeTabIndex != current.activeTabIndex,
+            builder: (context, state) {
+              return Column(
+                children: [
+                  // Tabs / Content
+                  Expanded(
+                    child: state.tabs.isEmpty
+                        ? const Center(child: Text('No Tabs'))
+                        : IndexedStack(
+                            index: state.activeTabIndex,
+                            children: state.tabs
+                                .map((tab) => WebViewContainer(tab: tab))
+                                .toList(),
+                          ),
+                  ),
+                  // Bottom Bar (OmniBox + Controls)
+                  const OmniBox(),
+                  _buildBottomBar(context, state),
+                ],
+              );
+            },
+          ),
         ),
       ),
     );
@@ -69,25 +88,30 @@ class BrowserView extends StatelessWidget {
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
           IconButton(
-            icon: const Icon(Icons.arrow_back),
-            onPressed: () {
-              // Navigation logic handled by WebView internally?
-              // Or does Bloc know history?
-              // Usually WebView controller handles this.
-              // For now, MVP: we don't have back/forward exposed nicely via Bloc yet.
-              // Leaving as placeholders or maybe just "disable" for now if complex.
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Back/Forward not connected yet')),
-              );
-            },
+            icon: Icon(
+              Icons.arrow_back,
+              color: (state.activeTab?.canGoBack ?? false)
+                  ? Colors.black
+                  : Colors.grey,
+            ),
+            onPressed: (state.activeTab?.canGoBack ?? false)
+                ? () {
+                    context.read<BrowserBloc>().add(const BrowserGoBack());
+                  }
+                : null,
           ),
           IconButton(
-            icon: const Icon(Icons.arrow_forward),
-            onPressed: () {
-              ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(content: Text('Back/Forward not connected yet')),
-              );
-            },
+            icon: Icon(
+              Icons.arrow_forward,
+              color: (state.activeTab?.canGoForward ?? false)
+                  ? Colors.black
+                  : Colors.grey,
+            ),
+            onPressed: (state.activeTab?.canGoForward ?? false)
+                ? () {
+                    context.read<BrowserBloc>().add(const BrowserGoForward());
+                  }
+                : null,
           ),
           IconButton(
             icon: const Icon(Icons.search),

@@ -102,6 +102,21 @@ class BrowserScreenshotUpdated extends BrowserEvent {
   List<Object?> get props => [tabId, path];
 }
 
+class BrowserHistoryUpdated extends BrowserEvent {
+  final String tabId;
+  final bool canGoBack;
+  final bool canGoForward;
+
+  const BrowserHistoryUpdated({
+    required this.tabId,
+    required this.canGoBack,
+    required this.canGoForward,
+  });
+
+  @override
+  List<Object?> get props => [tabId, canGoBack, canGoForward];
+}
+
 class BrowserCaptureScreenshot extends BrowserEvent {
   final String tabId;
 

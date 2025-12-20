@@ -171,6 +171,19 @@ class _WebViewContainerState extends State<WebViewContainer>
                   );
                 }
               },
+              onUpdateVisitedHistory: (controller, url, androidIsReload) async {
+                final canGoBack = await controller.canGoBack();
+                final canGoForward = await controller.canGoForward();
+                if (mounted) {
+                  context.read<BrowserBloc>().add(
+                    BrowserHistoryUpdated(
+                      tabId: widget.tab.id,
+                      canGoBack: canGoBack,
+                      canGoForward: canGoForward,
+                    ),
+                  );
+                }
+              },
               onDownloadStartRequest: (controller, request) async {
                 final url = request.url.toString();
                 final suggestedFilename =

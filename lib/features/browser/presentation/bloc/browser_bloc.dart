@@ -29,6 +29,7 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
     on<BrowserUrlChanged>(_onUrlChanged);
     on<BrowserTitleChanged>(_onTitleChanged);
     on<BrowserFaviconChanged>(_onFaviconChanged);
+    on<BrowserHistoryUpdated>(_onHistoryUpdated);
 
     add(BrowserInitialized());
 
@@ -140,6 +141,22 @@ class BrowserBloc extends Bloc<BrowserEvent, BrowserState> {
     }).toList();
     emit(state.copyWith(tabs: newTabs));
     _browserRepository.saveSession(newTabs, state.activeTabIndex);
+  }
+
+  Future<void> _onHistoryUpdated(
+    BrowserHistoryUpdated event,
+    Emitter<BrowserState> emit,
+  ) async {
+    final newTabs = state.tabs.map((t) {
+      if (t.id == event.tabId) {
+        return t.copyWith(
+          canGoBack: event.canGoBack,
+          canGoForward: event.canGoForward,
+        );
+      }
+      return t;
+    }).toList();
+    emit(state.copyWith(tabs: newTabs));
   }
 
   Future<void> _onLoadUrl(

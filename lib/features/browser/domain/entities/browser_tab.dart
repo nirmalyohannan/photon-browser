@@ -13,6 +13,8 @@ class BrowserTab extends Equatable {
   // or nullable and not persisted tightly. But for tab switcher we need it.
   // We can store a path or bytes. Bytes is easier for in-memory.
   final String? screenshotPath;
+  final bool canGoBack;
+  final bool canGoForward;
 
   const BrowserTab({
     required this.id,
@@ -23,6 +25,8 @@ class BrowserTab extends Equatable {
     this.isLoading = false,
     this.favicon,
     this.screenshotPath,
+    this.canGoBack = false,
+    this.canGoForward = false,
   });
 
   BrowserTab copyWith({
@@ -34,6 +38,8 @@ class BrowserTab extends Equatable {
     bool? isLoading,
     Uint8List? favicon,
     String? screenshotPath,
+    bool? canGoBack,
+    bool? canGoForward,
   }) {
     return BrowserTab(
       id: id ?? this.id,
@@ -44,6 +50,8 @@ class BrowserTab extends Equatable {
       isLoading: isLoading ?? this.isLoading,
       favicon: favicon ?? this.favicon,
       screenshotPath: screenshotPath ?? this.screenshotPath,
+      canGoBack: canGoBack ?? this.canGoBack,
+      canGoForward: canGoForward ?? this.canGoForward,
     );
   }
 
@@ -57,5 +65,7 @@ class BrowserTab extends Equatable {
     isLoading,
     favicon,
     screenshotPath,
+    canGoBack,
+    canGoForward,
   ];
 }
